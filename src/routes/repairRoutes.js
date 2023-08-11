@@ -1,14 +1,15 @@
 const express = require("express");
 const repairControler = require("./../controllers/repairControllers");
-const validationRepairMiddleware = require("./../middlewares/validationRepairMiddleware");
+const validationMiddleware = require("./../middlewares/validationMiddleware");
 const router = express.Router();
-
+const repairsMiddleware = require("./../middlewares/repairsMiddleware");
 router
   .route("/")
   .get(repairControler.findRepairs)
-  .post(validationRepairMiddleware.validRepair, repairControler.createRepair);
+  .post(validationMiddleware.validRepair, repairControler.createRepair);
 
 router
+  .use("/:id", repairsMiddleware.validRepair)
   .route("/:id")
   .get(repairControler.findRepair)
   .patch(repairControler.updateRepair)

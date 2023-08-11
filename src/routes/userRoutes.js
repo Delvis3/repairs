@@ -1,6 +1,10 @@
 const express = require("express");
+
 const userControler = require("./../controllers/userControllers");
+
 const validationMiddleware = require("./../middlewares/validationMiddleware");
+const userMiddleware= require("../middlewares/userMiddleware")
+
 const router = express.Router();
 
 router
@@ -9,6 +13,7 @@ router
   .post(validationMiddleware.validUser, userControler.createUser);
 
 router
+  .use("/:id", userMiddleware.validUser)
   .route("/:id")
   .get(userControler.findUser)
   .patch(userControler.updateUser)

@@ -21,11 +21,11 @@ const User = db.define("users", {
    allowNull: false,
  },  
  role:{
-  type: DataTypes.TEXT(10),
+  type: DataTypes.ENUM("client","employee"),
   allowNull: false,
  },
   status: {
-    type: DataTypes.TEXT(15),
+    type: DataTypes.ENUM("available", "disabled"),
     allowNull: false,
     defaultValue: "available",
   },
