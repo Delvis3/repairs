@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+const bycrypt = require('bcryptjs');
 exports.findUsers = async (req, res) => {
   try {
     const users = await User.findAll({
@@ -27,12 +28,23 @@ exports.createUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
+    const salt = await bycrypt.genSaltSync(12);
+    const hashPassword = await bycrypt.hash(password, salt);
+
     const user = await User.create({
       name,
       email,
-      password,
+      password : hashPassword,
       role,
     });
+
+    
+    const token = await generateJWT(user.id);
+
+    res.status(201).json({
+      status: 'success',
+      token,
+      user,});
 
     res.status(201).json({
       status: "success",
@@ -105,6 +117,46 @@ exports.deleteUser = async (req, res) => {
     return res.status(500).json({
       status: "fail",
       message: "Something went very wrong!",
+      error,
+    });
+  }
+};
+exports.login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+  const user = await User.findOne({
+    where: {
+      email,
+      status: 'available',
+    },
+  });
+
+  if (!user) {
+    return next(new AppError('Email or password incorrect...😥', 400));
+  }
+
+  if (!(await bycrypt.compare(password, user.password))) {
+    return next(new AppError('Email or password incorrect...😥', 400));
+  }
+
+  const token = await generateJWT(user.id);
+
+  res.status(200).json({
+    status: 'success',
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: "fail",
+      message: "internal server error!",
       error,
     });
   }

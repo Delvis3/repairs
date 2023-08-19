@@ -1,8 +1,12 @@
 const express = require("express");
 const repairControler = require("./../controllers/repairControllers");
 const validationMiddleware = require("./../middlewares/validationMiddleware");
+const authMiddleware= require("../middlewares/authMiddleware");
 const router = express.Router();
 const repairsMiddleware = require("./../middlewares/repairsMiddleware");
+
+router.use(authMiddleware.protect);
+
 router
   .route("/")
   .get(repairControler.findRepairs)
